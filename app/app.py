@@ -2,10 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
-import shap
 import matplotlib.pyplot as plt
 
-# Model ve scaler yükle
 @st.cache_resource
 def load_model():
     model = pickle.load(open('data/model.pkl', 'rb'))
@@ -15,7 +13,7 @@ def load_model():
 model, scaler = load_model()
 
 st.title("Kredi Riski Tahmin Modeli")
-st.markdown("XGBoost tabanlı, SHAP açıklamalı kredi riski tahmin sistemi · AUC: 0.85")
+st.markdown("XGBoost tabanlı kredi riski tahmin sistemi · AUC: 0.85")
 
 st.sidebar.header("Müşteri Bilgileri")
 
@@ -23,9 +21,9 @@ age = st.sidebar.slider("Yaş", 18, 100, 45)
 income = st.sidebar.number_input("Aylık Gelir ($)", 0, 50000, 5000, step=500)
 debt_ratio = st.sidebar.slider("Borç Oranı", 0.0, 5.0, 0.3)
 revolving = st.sidebar.slider("Kredi Kullanım Oranı", 0.0, 1.0, 0.3)
-late_30_59 = st.sidebar.slider("30-59 Gün Gecikme (son 2 yıl)", 0, 10, 0)
-late_60_89 = st.sidebar.slider("60-89 Gün Gecikme (son 2 yıl)", 0, 10, 0)
-late_90 = st.sidebar.slider("90+ Gün Gecikme (son 2 yıl)", 0, 10, 0)
+late_30_59 = st.sidebar.slider("30-59 Gün Gecikme", 0, 10, 0)
+late_60_89 = st.sidebar.slider("60-89 Gün Gecikme", 0, 10, 0)
+late_90 = st.sidebar.slider("90+ Gün Gecikme", 0, 10, 0)
 open_credits = st.sidebar.slider("Açık Kredi Sayısı", 0, 30, 5)
 real_estate = st.sidebar.slider("Gayrimenkul Kredisi", 0, 10, 1)
 dependents = st.sidebar.slider("Bakmakla Yükümlü Kişi", 0, 10, 0)
@@ -62,16 +60,13 @@ with col2:
 
 st.progress(float(proba))
 
-# SHAP açıklaması
-st.header("Model Açıklaması (SHAP)")
-explainer = shap.TreeExplainer(model)
-shap_values = explainer.shap_values(input_data)
-fig, ax = plt.subplots(figsize=(10, 4))
-shap.waterfall_plot(shap.Explanation(
-    values=shap_values[0],
-    base_values=explainer.expected_value,
-    data=input_data.iloc[0],
-    feature_names=input_data.columns.tolist()
-), show=False)
+st.header("Feature Importance")
+feature_names = input_data.columns.tolist()
+importances = model.feature_importances_
+fig, ax = plt.subplots(figsize=(10, 5))
+indices = np.argsort(importances)
+ax.barh([feature_names[i] for i in indices], importances[indices], color='#3498db')
+ax.set_xlabel("Önem Skoru")
+ax.set_title("Model Feature Importance")
 st.pyplot(fig)
 plt.close()
