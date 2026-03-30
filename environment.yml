@@ -10,5 +10,7 @@ dependencies:
     - numpy
     - scikit-learn
     - xgboost
+    - shap
     - streamlit
+    - matplotlib
     - altair<5
