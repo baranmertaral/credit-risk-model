@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
-import matplotlib.pyplot as plt
 
 @st.cache_resource
 def load_model():
@@ -61,12 +60,11 @@ with col2:
 st.progress(float(proba))
 
 st.header("Feature Importance")
-feature_names = input_data.columns.tolist()
+feature_names = list(input_data.columns)
 importances = model.feature_importances_
-fig, ax = plt.subplots(figsize=(10, 5))
-indices = np.argsort(importances)
-ax.barh([feature_names[i] for i in indices], importances[indices], color='#3498db')
-ax.set_xlabel("Önem Skoru")
-ax.set_title("Model Feature Importance")
-st.pyplot(fig)
-plt.close()
+importance_df = pd.DataFrame({
+    'Feature': feature_names,
+    'Importance': importances
+}).sort_values('Importance', ascending=False)
+
+st.bar_chart(importance_df.set_index('Feature'))
