@@ -1,8 +1,8 @@
-pandas==2.1.0
-numpy==1.26.0
-scikit-learn==1.3.0
-xgboost==2.0.0
-shap==0.43.0
-streamlit==1.28.0
-matplotlib==3.7.2
-altair==5.1.0
+pandas
+numpy
+scikit-learn
+xgboost==1.7.6
+shap
+streamlit
+matplotlib
+altair<5
