@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
+import matplotlib.pyplot as plt
+import shap
 
 @st.cache_resource
 def load_model():
@@ -12,7 +14,7 @@ def load_model():
 model, scaler = load_model()
 
 st.title("Kredi Riski Tahmin Modeli")
-st.markdown("XGBoost tabanlı kredi riski tahmin sistemi · AUC: 0.85")
+st.markdown("XGBoost tabanlı, SHAP açıklamalı kredi riski tahmin sistemi · AUC: 0.85")
 
 st.sidebar.header("Müşteri Bilgileri")
 
@@ -66,5 +68,20 @@ importance_df = pd.DataFrame({
     'Feature': feature_names,
     'Importance': importances
 }).sort_values('Importance', ascending=False)
-
 st.bar_chart(importance_df.set_index('Feature'))
+
+st.header("Model Açıklaması (SHAP)")
+try:
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(input_data)
+    fig, ax = plt.subplots(figsize=(10, 4))
+    shap.waterfall_plot(shap.Explanation(
+        values=shap_values[0],
+        base_values=explainer.expected_value,
+        data=input_data.iloc[0],
+        feature_names=input_data.columns.tolist()
+    ), show=False)
+    st.pyplot(fig)
+    plt.close()
+except Exception as e:
+    st.info("SHAP grafiği yüklenemedi.")
