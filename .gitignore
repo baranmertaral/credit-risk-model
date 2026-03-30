@@ -2,7 +2,6 @@ __pycache__/
 *.py[cod]
 .env
 .DS_Store
-data/
-*.csv
-*.pkl
 .ipynb_checkpoints/
+data/*.npy
+data/*.csv
