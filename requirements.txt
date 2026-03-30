@@ -1,8 +1,0 @@
-pandas
-numpy
-scikit-learn
-xgboost==1.7.6
-shap
-streamlit
-matplotlib
-altair<5
